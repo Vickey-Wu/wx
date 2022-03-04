@@ -12,7 +12,7 @@ from wechatpy.exceptions import (
 )
 from wechatpy.utils import check_signature
 
-# here to set your custom token, e.g.: abcd
+# here to set your custom token, e.g.: abcde
 TOKEN = os.getenv("WECHAT_TOKEN", "")
 AES_KEY = os.getenv("WECHAT_AES_KEY", "")
 APPID = os.getenv("WECHAT_APPID", "")
