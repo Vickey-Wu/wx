@@ -3,7 +3,7 @@ def format_output(result):
     if '.' in expr_str:
         suffix = expr_str.split('.')[1]
         if len(suffix) > 2:
-            return '%.2f' % result
+            return '%.5f' % result
         else:
             return str(result)
     else:
@@ -26,5 +26,5 @@ def calc(string):
 
 
 if __name__ == '__main__':
-    result = calc('计算 3/2')
+    result = calc('计算 469/6%3/8646/3%6')
     print(result)
