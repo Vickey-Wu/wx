@@ -27,9 +27,10 @@ firstly, login in your server, then, clone github repository
 **todo: push code to github**
 
 ```shell
-mkdir -p ~/code/wx
-cd ~/code/wx
-...git clone here...
+mkdir -p ~/code
+cd ~/code
+git clone https://github.com/idlepig/wx.git
+cd wx
 ```
 
 install third requirement
