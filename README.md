@@ -51,7 +51,6 @@ export WECHAT_APPID=appid
 ```
 
 ```shell
-cd ~/code/wx
 chmod +x restart.sh
 ./restart.sh
 ```
