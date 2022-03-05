@@ -1,11 +1,11 @@
 import logging
 from logging.handlers import RotatingFileHandler
 
-LOG_FILENAME = 'logs/output.log'
+LOG_FILENAME = '/opt/idlepig/logs/output.log'
 
 logger = logging.getLogger()
 
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter(
     '%(asctime)s: '
     '%(levelname)s:'
@@ -15,8 +15,8 @@ formatter = logging.Formatter(
 
 file_handler = RotatingFileHandler(
     filename=LOG_FILENAME,
-    maxBytes=5 * 1024 * 1024,
-    backupCount=3,
+    maxBytes=50 * 1024 * 1024,
+    backupCount=500,
     encoding='utf-8'
 )
 file_handler.setFormatter(formatter)

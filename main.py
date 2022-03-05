@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
 
+import xmltodict
 from flask import Flask, request, abort
 from wechatpy import parse_message, create_reply
 from wechatpy.exceptions import (
     InvalidSignatureException,
     InvalidAppIdException,
 )
-from wechatpy.utils import check_signature
+from wechatpy.utils import check_signature, to_text
 
 from utils.bingdwendwen import bingdwendwen
 from utils.calculate import calc
@@ -32,6 +33,7 @@ def index():
 
 @app.route("/wx", methods=["GET", "POST"])
 def wechat():
+    logger.info('request: ' + str(request))
     signature = request.args.get("signature", "")
     timestamp = request.args.get("timestamp", "")
     nonce = request.args.get("nonce", "")
@@ -40,7 +42,7 @@ def wechat():
 
     try:
         check_signature(TOKEN, signature, timestamp, nonce)
-        logger.info(TOKEN)
+        logger.info('token: ' + TOKEN)
     except InvalidSignatureException:
         abort(403)
 
@@ -51,10 +53,20 @@ def wechat():
     # POST request
     elif encrypt_type == "raw":
         # plaintext mode
+        logger.info('request.data')
+        logger.info('request.data type: ' + str(type(request.data)))
+        logger.info('request.data content: ' + str(request.data))
+
+        message = xmltodict.parse(to_text(request.data))['xml']
+        from_user_name = message['FromUserName'].lower()
+        logger.info('FromUserName: ' + str(from_user_name))
+
         msg = parse_message(request.data)
-        logger.info(msg)
+        logger.info('msg')
+        logger.info('msg type: ' + str(type(msg)))
+        logger.info('msg content: ', msg)
         if msg.type == "text":
-            reply = replay_message(msg)
+            reply = replay_message(msg, from_user_name)
         else:
             reply = create_reply("Sorry, can not handle this for now", msg)
         return reply.render()
@@ -76,17 +88,17 @@ def wechat():
             return crypto.encrypt_message(reply.render(), nonce, timestamp)
 
 
-def replay_message(msg):
+def replay_message(msg, user):
     content: str = msg.content.strip()
     logger.info('in replay message')
-    logger.info(content)
-    logger.info(str(type(content)))
-    result = map_keyword_to_func(content)
+    logger.info('content type: ' + str(type(content)))
+    logger.info('content: ' + content)
+    result = map_keyword_to_func(content, user)
     reply = create_reply(result, msg)
     return reply
 
 
-def map_keyword_to_func(content):
+def map_keyword_to_func(content, user):
     if not content:
         return ''
 
@@ -96,26 +108,27 @@ def map_keyword_to_func(content):
         '历史': {'func': today_in_history, 'param': ''},
         'history': {'func': today_in_history, 'param': ''},
         '冰墩墩': {'func': bingdwendwen, 'param': ''},
-        '翻译': {'func': translate, 'param': content},
-        'translate': {'func': translate, 'param': content},
-        '计算': {'func': calc, 'param': content},
-        'calc': {'func': calc, 'param': content},
+        '翻译': {'func': translate, 'param': (content, )},
+        'translate': {'func': translate, 'param': (content, )},
+        '计算': {'func': calc, 'param': (content, user)},
+        'calc': {'func': calc, 'param': (content, user)},
     }
     func = keyword_action_dict.get(keyword, {}).get('func', '')
     param = keyword_action_dict.get(keyword, {}).get('param', '')
-    logger.info(str(func))
-    logger.info(str(param))
+    logger.info('execute function: ' + str(func))
+    logger.info('params: ' + str(param))
 
     if not func:
         return ''
 
     if param:
-        result = func(param)
+        result = func(*param)
     else:
         result = func()
     result = str(result)
     logger.info('result')
-    logger.info(result)
+    logger.info('result type: ' + str(type(result)))
+    logger.info('result content: ' + result)
     return result
 
 

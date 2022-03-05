@@ -99,3 +99,7 @@ nginx
 # for WeChat platform
 
 [article_for_wx.py](article_for_wx.py) has chinese comment is only for WeChat platform
+
+# logs file location
+
+/opt/idlepig/logs/output.log
