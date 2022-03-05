@@ -9,6 +9,12 @@ from utils.basic import gen_today_file_name, is_today_file_exist, read_local_fil
 from utils import logger
 
 
+def get_month_day():
+    month = datetime.now().month
+    day = datetime.now().day
+    return f'{month}月{day}日'
+
+
 def get_article_text(uri_id):
     url_60s = 'https://zhuanlan.zhihu.com/p/%s' % uri_id
     headers = {
@@ -28,7 +34,7 @@ def extract_content(text):
     text_list = []
     for p in div_content.find_all('p'):
         text_p = p.get_text().strip()
-        if text_p and '微语' not in text_p:
+        if text_p and '微语' not in text_p and '每天60秒读懂世界' not in text_p and '农历' not in text_p:
             text_list.append(p.get_text().strip())
 
     result = '\n\n'.join(text_list)
@@ -87,6 +93,7 @@ def _get_news_60s():
 
     text_article = get_article_text(uri_id)
     result = extract_content(text_article)
+    result = get_month_day() + '\n\n' + result
     return result
 
 

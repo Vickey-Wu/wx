@@ -141,7 +141,7 @@ def map_keyword_to_func(content, user):
         '历史': {'func': today_in_history, 'param': ''},
         'history': {'func': today_in_history, 'param': ''},
         '冰墩墩': {'func': bingdwendwen, 'param': ''},
-        '60': {'func': get_news_60s, 'param': ''},
+        '新闻': {'func': get_news_60s, 'param': ''},
         '翻译': {'func': translate, 'param': (content,)},
         'translate': {'func': translate, 'param': (content,)},
         '计算': {'func': calc, 'param': (content, user)},
