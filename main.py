@@ -4,6 +4,7 @@ import os
 import xmltodict
 from flask import Flask, request, abort
 from wechatpy import parse_message, create_reply
+from wechatpy.replies import ImageReply
 from wechatpy.exceptions import (
     InvalidSignatureException,
     InvalidAppIdException,
@@ -12,6 +13,7 @@ from wechatpy.utils import check_signature, to_text
 
 from utils.bingdwendwen import bingdwendwen
 from utils.calculate import calc
+from utils.news_60s import get_news_60s
 from utils.today_in_history import today_in_history
 from utils.translate import translate
 from utils.logger import logger
@@ -91,7 +93,7 @@ def wechat():
 
 def extract_field_from_request_data():
     message = xmltodict.parse(to_text(request.data))['xml']
-    from_user_name = message['FromUserName'].lower()
+    from_user_name = message['FromUserName']
     logger.info('FromUserName: ' + str(from_user_name))
 
     message_type = message['MsgType'].lower()
@@ -139,6 +141,7 @@ def map_keyword_to_func(content, user):
         '历史': {'func': today_in_history, 'param': ''},
         'history': {'func': today_in_history, 'param': ''},
         '冰墩墩': {'func': bingdwendwen, 'param': ''},
+        '60': {'func': get_news_60s, 'param': ''},
         '翻译': {'func': translate, 'param': (content,)},
         'translate': {'func': translate, 'param': (content,)},
         '计算': {'func': calc, 'param': (content, user)},

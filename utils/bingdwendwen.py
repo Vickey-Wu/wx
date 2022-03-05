@@ -6,4 +6,6 @@ def bingdwendwen():
         # password:6u4g
         '密码:6u4g',
     ]
+    # address = ['https://idlepig.coding.net/p/image/d/image/git/raw/master/1646240050608.png']
+    # address = ['<img src="https://idlepig.coding.net/p/image/d/image/git/raw/master/1646240050608.png" alt="register">']
     return '\n'.join(address)

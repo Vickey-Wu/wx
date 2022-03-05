@@ -6,3 +6,7 @@ nohup.out
 .DS_Store
 *.json
 *.log
+push/client.py
+*.png
+*.html
+*.txt
