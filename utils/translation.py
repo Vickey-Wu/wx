@@ -39,5 +39,5 @@ def translation(words):
 
 
 if __name__ == '__main__':
-    result = translation("翻译 hello")
+    result = translation("translate hello")
     print(result)

@@ -53,9 +53,8 @@ def wechat():
         # plaintext mode
         msg = parse_message(request.data)
         if msg.type == "text":
-
             reply = replay_message(msg)
-
+            reply = str(reply)
         else:
             reply = create_reply("Sorry, can not handle this for now", msg)
         return reply.render()

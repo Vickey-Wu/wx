@@ -26,5 +26,6 @@ def calc(string):
 
 
 if __name__ == '__main__':
+    # result = calc('calculate 469/6%3/8646/3%6')
     result = calc('计算 469/6%3/8646/3%6')
     print(result)
