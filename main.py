@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-import json
 import os
-from datetime import datetime
 
-import requests
 from flask import Flask, request, abort
 from wechatpy import parse_message, create_reply
 from wechatpy.exceptions import (
@@ -12,12 +9,13 @@ from wechatpy.exceptions import (
 )
 from wechatpy.utils import check_signature
 
-# here to set your custom token, e.g.: abcde
 from utils.bingdwendwen import bingdwendwen
 from utils.calculate import calc
 from utils.today_in_history import today_in_history
-from utils.translation import translation
+from utils.translate import translate
+from utils.logger import logger
 
+# here to set your custom token, e.g.: abcde
 TOKEN = os.getenv("WECHAT_TOKEN", "")
 AES_KEY = os.getenv("WECHAT_AES_KEY", "")
 APPID = os.getenv("WECHAT_APPID", "")
@@ -39,22 +37,24 @@ def wechat():
     nonce = request.args.get("nonce", "")
     encrypt_type = request.args.get("encrypt_type", "raw")
     msg_signature = request.args.get("msg_signature", "")
+
     try:
         check_signature(TOKEN, signature, timestamp, nonce)
-        print(TOKEN)
+        logger.info(TOKEN)
     except InvalidSignatureException:
         abort(403)
+
     if request.method == "GET":
         echo_str = request.args.get("echostr", "")
         return echo_str
 
     # POST request
-    if encrypt_type == "raw":
+    elif encrypt_type == "raw":
         # plaintext mode
         msg = parse_message(request.data)
+        logger.info(msg)
         if msg.type == "text":
             reply = replay_message(msg)
-            reply = str(reply)
         else:
             reply = create_reply("Sorry, can not handle this for now", msg)
         return reply.render()
@@ -64,8 +64,7 @@ def wechat():
 
         crypto = WeChatCrypto(TOKEN, AES_KEY, APPID)
         try:
-            msg = crypto.decrypt_message(request.data, msg_signature, timestamp,
-                                         nonce)
+            msg = crypto.decrypt_message(request.data, msg_signature, timestamp, nonce)
         except (InvalidSignatureException, InvalidAppIdException):
             abort(403)
         else:
@@ -78,17 +77,46 @@ def wechat():
 
 
 def replay_message(msg):
-    if msg.content == '历史':  # history
-        reply = create_reply(today_in_history(), msg)
-    elif str(msg.content).startswith('翻译'):  # translation
-        reply = create_reply(translation(msg.content), msg)
-    elif str(msg.content).startswith('计算'):  # calculate
-        reply = create_reply(calc(msg.content), msg)
-    elif msg.content == '冰墩墩':  # bingdwendwen
-        reply = create_reply(bingdwendwen(), msg)
-    else:
-        reply = create_reply('', msg)
+    content: str = msg.content.strip()
+    logger.info('in replay message')
+    logger.info(content)
+    logger.info(str(type(content)))
+    result = map_keyword_to_func(content)
+    reply = create_reply(result, msg)
     return reply
+
+
+def map_keyword_to_func(content):
+    if not content:
+        return ''
+
+    keyword = content.split()[0]
+
+    keyword_action_dict = {
+        '历史': {'func': today_in_history, 'param': ''},
+        'history': {'func': today_in_history, 'param': ''},
+        '冰墩墩': {'func': bingdwendwen, 'param': ''},
+        '翻译': {'func': translate, 'param': content},
+        'translate': {'func': translate, 'param': content},
+        '计算': {'func': calc, 'param': content},
+        'calc': {'func': calc, 'param': content},
+    }
+    func = keyword_action_dict.get(keyword, {}).get('func', '')
+    param = keyword_action_dict.get(keyword, {}).get('param', '')
+    logger.info(str(func))
+    logger.info(str(param))
+
+    if not func:
+        return ''
+
+    if param:
+        result = func(param)
+    else:
+        result = func()
+    result = str(result)
+    logger.info('result')
+    logger.info(result)
+    return result
 
 
 if __name__ == "__main__":
