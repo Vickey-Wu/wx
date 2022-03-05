@@ -15,6 +15,7 @@ from utils.calculate import calc
 from utils.today_in_history import today_in_history
 from utils.translate import translate
 from utils.logger import logger
+from utils.first_message import first_message
 
 # here to set your custom token, e.g.: abcde
 TOKEN = os.getenv("WECHAT_TOKEN", "")
@@ -59,12 +60,25 @@ def wechat():
 
         message = xmltodict.parse(to_text(request.data))['xml']
         from_user_name = message['FromUserName'].lower()
+        message_type = message['MsgType'].lower()
         logger.info('FromUserName: ' + str(from_user_name))
 
         msg = parse_message(request.data)
         logger.info('msg')
         logger.info('msg type: ' + str(type(msg)))
         logger.info('msg content: ', msg)
+
+        if message_type == 'event' or message_type.startswith('device_'):
+            if 'Event' in message:
+                logger.info('event in message')
+                event_type = message['Event'].lower()
+            else:
+                event_type = ''
+
+            if event_type == 'subscribe':
+                reply = create_reply(first_message(), msg)
+                return reply.render()
+
         if msg.type == "text":
             reply = replay_message(msg, from_user_name)
         else:
