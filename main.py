@@ -58,31 +58,18 @@ def wechat():
         logger.info('request.data type: ' + str(type(request.data)))
         logger.info('request.data content: ' + str(request.data))
 
-        message = xmltodict.parse(to_text(request.data))['xml']
-        from_user_name = message['FromUserName'].lower()
-        message_type = message['MsgType'].lower()
-        logger.info('FromUserName: ' + str(from_user_name))
+        from_user_name, message, message_type, msg = extract_field_from_request_data()
 
-        msg = parse_message(request.data)
-        logger.info('msg')
-        logger.info('msg type: ' + str(type(msg)))
-        logger.info('msg content: ', msg)
-
-        if message_type == 'event' or message_type.startswith('device_'):
-            if 'Event' in message:
-                logger.info('event in message')
-                event_type = message['Event'].lower()
-            else:
-                event_type = ''
-
-            if event_type == 'subscribe':
-                reply = create_reply(first_message(), msg)
-                return reply.render()
+        # if someone subscribes, send init message
+        subscribe = is_subscribe(message, message_type)
+        if subscribe:
+            reply = create_reply(first_message(), msg)
+            return reply.render()
 
         if msg.type == "text":
             reply = replay_message(msg, from_user_name)
         else:
-            reply = create_reply("Sorry, can not handle this for now", msg)
+            reply = create_reply("Sorry, can not handle this for now.", msg)
         return reply.render()
     else:
         # encryption mode
@@ -100,6 +87,36 @@ def wechat():
             else:
                 reply = create_reply("Sorry, can not handle this for now", msg)
             return crypto.encrypt_message(reply.render(), nonce, timestamp)
+
+
+def extract_field_from_request_data():
+    message = xmltodict.parse(to_text(request.data))['xml']
+    from_user_name = message['FromUserName'].lower()
+    logger.info('FromUserName: ' + str(from_user_name))
+
+    message_type = message['MsgType'].lower()
+    logger.info('MsgType: ' + str(message_type))
+
+    msg = parse_message(request.data)
+    logger.info('msg')
+    logger.info('msg type: ' + str(type(msg)))
+    logger.info('msg content: ', msg)
+
+    return from_user_name, message, message_type, msg
+
+
+def is_subscribe(message, message_type):
+    if message_type == 'event' or message_type.startswith('device_'):
+        if 'Event' in message:
+            logger.info('event in message')
+            event_type = message['Event'].lower()
+        else:
+            event_type = ''
+
+        if event_type == 'subscribe':
+            return True
+        else:
+            return False
 
 
 def replay_message(msg, user):
@@ -122,8 +139,8 @@ def map_keyword_to_func(content, user):
         '历史': {'func': today_in_history, 'param': ''},
         'history': {'func': today_in_history, 'param': ''},
         '冰墩墩': {'func': bingdwendwen, 'param': ''},
-        '翻译': {'func': translate, 'param': (content, )},
-        'translate': {'func': translate, 'param': (content, )},
+        '翻译': {'func': translate, 'param': (content,)},
+        'translate': {'func': translate, 'param': (content,)},
         '计算': {'func': calc, 'param': (content, user)},
         'calc': {'func': calc, 'param': (content, user)},
     }
