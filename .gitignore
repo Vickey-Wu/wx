@@ -10,3 +10,4 @@ push/client.py
 *.png
 *.html
 *.txt
+*.db
