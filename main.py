@@ -169,8 +169,6 @@ def map_voice_keyword_to_func(content, user):
     if not content:
         return ''
 
-    # content = content.split()[0].replace('。', '')
-
     voice_keywords = {
         '新闻': get_news_60s,
         'news': get_news_60s,
