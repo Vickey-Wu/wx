@@ -4,32 +4,7 @@ from datetime import datetime
 
 
 def get_real_name(user_id):
-    id_name_dict = {
-        'oJo_v0-jh_eTVXjBbYJ83mNFQOI0': {
-            'chinese': '全震',
-            'pinyin': 'quanzhen'
-        },
-        'oJo_v0xuujTgX7lhNIw28Ff_Qhuc': {
-            'chinese': '超胖子',
-            'pinyin': 'chaopangzi'
-        },
-        'oJo_v06K5xUTXXGoKSCpBVHrHKmM': {
-            'chinese': '周新铮',
-            'pinyin': 'zhouxinzheng'
-        },
-        'oJo_v057WiIXxBIwz_5mV4IXQy1Y': {
-            'chinese': '吴键鸿',
-            'pinyin': 'wujianhong'
-        },
-        'oJo_v05AVVhvwEk-Y7dC_EbLTyc4': {
-            'chinese': '吴伟机',
-            'pinyin': 'wuweiji'
-        },
-        'oJo_v02zMPy6gesgPc1fEhAJCWs0': {
-            'chinese': '卢盘灿',
-            'pinyin': 'lupancan'
-        },
-    }
+    id_name_dict = {}
     chinese = id_name_dict.get(user_id, {}).get('chinese', '')
     pinyin = id_name_dict.get(user_id, {}).get('pinyin', '')
     return '  mmmmm  '.join([str(i) for i in [user_id, chinese, pinyin]])
