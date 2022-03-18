@@ -22,14 +22,11 @@ def get_article_text(uri_id):
 
     response = requests.get(url_60s, headers=headers)
     response = response.text
-    with open('t.html', 'w', encoding='utf-8') as f:
-        f.write(response)
     return response
 
 
 def extract_content(text):
     soup: BeautifulSoup = BeautifulSoup(text, features="html.parser")
-    # div_content: bs4.element.Tag = soup.find('div', {'class': 'RichText ztext Post-RichText css-hnrfcf'})
     div_content: bs4.element.Tag = soup.find('div', {'class': 'Post-RichTextContainer'})
 
     text_list = []
