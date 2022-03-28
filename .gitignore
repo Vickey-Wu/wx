@@ -12,3 +12,4 @@ push/client.py
 *.html
 *.txt
 *.db
+*.pclprof
